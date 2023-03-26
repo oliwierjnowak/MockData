@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MockData.Model;
 
 namespace MockData.Controllers
 {
@@ -9,7 +10,7 @@ namespace MockData.Controllers
         [HttpGet]
         public ActionResult<dynamic> Get()
         {
-            return "Hello world \n loool";
+            return new FishDb().Script;
         }
     }
 }
