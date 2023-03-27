@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections;
+using System.Reflection;
 
 namespace MockData.Model
 {
@@ -220,12 +221,19 @@ namespace MockData.Model
         }
         #endregion
 
+        public Reader.Reader reader;
+        ArrayList arrayList; 
+
         public string Script { get; set; }
 
         public FishDb()
         {
             Script = "";
             //independent tables
+            reader = new Reader.Reader();
+            arrayList = reader.readRevier();
+           
+            
             GenerateFish();
             GenerateBundesland();
             GenerateAusuebungsberechtigte();
@@ -237,7 +245,12 @@ namespace MockData.Model
             GenerateBewertung();
             GenerateKarten();
             GenerateRevierValues();
-
+            
+            //arraylist with real revier name and id
+            foreach (var revier in arrayList)
+            {
+                Script += revier;
+            }
         }
         //independent
         // Fisch
@@ -366,7 +379,7 @@ namespace MockData.Model
                     r_name = "Fish and go"
                 }
                 );
-            Script += a;
+                     Script += a;
         }
         public void GenerateAufsichtsorgane()
         {

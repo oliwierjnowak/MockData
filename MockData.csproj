@@ -6,4 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Reader\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Reader\" />
+  </ItemGroup>
 </Project>
