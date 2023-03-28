@@ -14,8 +14,7 @@ namespace MockData.Reader
 
         public String read()
         {
-            var path =
-                @"/Users/philippschaffer/projects/dbi-mockdata/MockData/CSV/test.csv"; // Habeeb, "Dubai Media City, Dubai"
+            string path = Path.Combine(Environment.CurrentDirectory, @"CSV/test.csv"); // Habeeb, "Dubai Media City, Dubai"
             using (TextFieldParser csvParser = new TextFieldParser(path))
             {
                 //csvParser.CommentTokens = new string[] { "#" };
@@ -41,8 +40,8 @@ namespace MockData.Reader
 
         public ArrayList readRevier()
             {
-                var path =
-                    @"/Users/philippschaffer/projects/dbi-mockdata/MockData/CSV/test.csv";
+
+            string path = Path.Combine(Environment.CurrentDirectory,@"CSV/test.csv");
                 ArrayList arrayList = new ArrayList();
                 using (TextFieldParser csvParser = new TextFieldParser(path))
                 {
