@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using MockData.Helpers;
+using System.Collections;
 using System.Reflection;
 
 namespace MockData.Model
@@ -247,10 +248,7 @@ namespace MockData.Model
             GenerateRevierValues();
             
             //arraylist with real revier name and id
-            foreach (var revier in arrayList)
-            {
-                Script += revier;
-            }
+           
         }
         //independent
         // Fisch
@@ -259,26 +257,157 @@ namespace MockData.Model
         // Revier attributes
         // Rating
         // users
-
+        private int fishid = 0;
         public void GenerateFish()
         {
             var a = FischInsert(new FischRecord
             {
-                f_id = 1,
-                f_na = "Forelle"
+                f_id = fishid,
+                f_na = "Regenbogenforelle"
             });
+            fishid++;
             Script += a;
+             a = FischInsert(new FischRecord
+            {
+                f_id = fishid,
+                f_na = "Bachsaibling"
+            });
+            fishid++;
+            Script += a;
+             a = FischInsert(new FischRecord
+            {
+                f_id = fishid,
+                f_na = "Karpfen"
+            });
+            fishid++;
+            Script += a;
+            a = FischInsert(new FischRecord
+            {
+                f_id = fishid,
+                f_na = "Europäischer Aal"
+            });
+            fishid++;
+            Script += a;
+            a = FischInsert(new FischRecord
+            {
+                f_id = fishid,
+                f_na = "Atlantischer Lachs"
+            });
+            fishid++;
+            Script += a;
+            a = FischInsert(new FischRecord
+            {
+                f_id = fishid,
+                f_na = "Thunfisch"
+            });
+            fishid++;
+            Script += a;
+            a = FischInsert(new FischRecord
+            {
+                f_id = fishid,
+                f_na = "Atlantischer Hering"
+            });
+            fishid++;
+            Script += a;
+            a = FischInsert(new FischRecord
+            {
+                f_id = fishid,
+                f_na = "Dorsch"
+            });
+            fishid++;
+            Script += a;
+            a = FischInsert(new FischRecord
+            {
+                f_id = fishid,
+                f_na = "Sardine"
+            });
+            fishid++;
+            Script += a + "\n\n";
         }
 
+        private int bundeslandid = 0;
         public void GenerateBundesland()
         {
             var a = BundeslandInsert(
                 new BundeslandRecord { 
-                    bl_id = 1 ,
+                    bl_id = bundeslandid,
                     bl_name="Voralberg"
                 }
                 ) ;
+            bundeslandid++;
             Script += a;
+            a = BundeslandInsert(
+                new BundeslandRecord
+                {
+                    bl_id = bundeslandid,
+                    bl_name = "Tirol"
+                }
+                );
+            bundeslandid++;
+            Script += a;
+            a = BundeslandInsert(
+                new BundeslandRecord
+                {
+                    bl_id = bundeslandid,
+                    bl_name = "Kaernten"
+                }
+                );
+            bundeslandid++;
+            Script += a;
+            a = BundeslandInsert(
+                new BundeslandRecord
+                {
+                    bl_id = bundeslandid,
+                    bl_name = "Salzburg"
+                }
+                );
+            bundeslandid++;
+            Script += a;
+            a = BundeslandInsert(
+                new BundeslandRecord
+                {
+                    bl_id = bundeslandid,
+                    bl_name = "Niederoesterreich"
+                }
+                );
+            bundeslandid++;
+            Script += a;
+            a = BundeslandInsert(
+                new BundeslandRecord
+                {
+                    bl_id = bundeslandid,
+                    bl_name = "Oberoesterreich"
+                }
+                );
+            bundeslandid++;
+            Script += a;
+            a = BundeslandInsert(
+                new BundeslandRecord
+                {
+                    bl_id = bundeslandid,
+                    bl_name = "Wien"
+                }
+                );
+            bundeslandid++;
+            Script += a;
+            a = BundeslandInsert(
+                new BundeslandRecord
+                {
+                    bl_id = bundeslandid,
+                    bl_name = "Steiermark"
+                }
+                );
+            bundeslandid++;
+            Script += a;
+            a = BundeslandInsert(
+                new BundeslandRecord
+                {
+                    bl_id = bundeslandid,
+                    bl_name = "Burgenland"
+                }
+                );
+            bundeslandid++;
+            Script += a+"\n\n";
         }
 
         public void GenerateAusuebungsberechtigte()
@@ -347,15 +476,16 @@ namespace MockData.Model
         }
         public void GenerateUsers()
         {
+            GeneralHelpers b = new GeneralHelpers();
             var a = UsersInsert(
                 new UsersRecord
                 {
                     u_id = 1,
                     u_name = "Oliwier Nowak",
                     u_telnr = "+43 999999999",
-                    u_email = "now20328@spengergasse.at"
+                    u_email = b.GenerateEmail("Oliwier Nowak")
                 }
-                ) ;
+                ); ;
             Script += a;
         }
 
