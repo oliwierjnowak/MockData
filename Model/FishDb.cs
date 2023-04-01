@@ -36,7 +36,7 @@ namespace MockData.Model
                 $"( {value.GetType().GetProperties()[0].Name}, {value.GetType().GetProperties()[1].Name}) " +
                 $"VALUES ({value.ao_u_id} , {value.ao_r_na}); \n";
         }
-
+    
         public record FischRecord
         {
             public int f_id { get; set; }
@@ -222,8 +222,8 @@ namespace MockData.Model
         #endregion
 
         public Reader.Reader reader;
-        ArrayList arrayList; 
-
+        ArrayList arrayList;
+        private string insertRevier = "";
         public string Script { get; set; }
 
         public FishDb()
@@ -231,7 +231,7 @@ namespace MockData.Model
             Script = "";
             //independent tables
             reader = new Reader.Reader();
-            arrayList = reader.readRevier();
+            insertRevier = reader.readRevier();
            
             
             GenerateFish();
@@ -245,12 +245,13 @@ namespace MockData.Model
             GenerateBewertung();
             GenerateKarten();
             GenerateRevierValues();
-            
-            //arraylist with real revier name and id
-            foreach (var revier in arrayList)
-            {
-                Script += revier;
-            }
+            GenerateGewaesser();
+            GenerateBezirk();
+        }
+
+        private void GenerateBezirk()
+        {
+            Script += reader.ReadBezirk();
         }
         //independent
         // Fisch
@@ -268,6 +269,11 @@ namespace MockData.Model
                 f_na = "Forelle"
             });
             Script += a;
+        }
+
+        public void GenerateGewaesser()
+        {
+            Script += reader.ReadGewaesser();
         }
 
         public void GenerateBundesland()
@@ -379,7 +385,11 @@ namespace MockData.Model
                     r_name = "Fish and go"
                 }
                 );
-                     Script += a;
+            //arraylist with real revier name and id
+            
+
+                Script += a;
+                Script += insertRevier;
         }
         public void GenerateAufsichtsorgane()
         {
@@ -390,7 +400,10 @@ namespace MockData.Model
                     ao_u_id = 1
                 }
                 );
+            
             Script += a;
+            Script += reader.ReadAusuebungsberechtigte();
+            
         }
         public void GenerateBewertung()
         {
