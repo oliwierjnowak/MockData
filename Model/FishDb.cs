@@ -8,47 +8,47 @@ namespace MockData.Model
     {
         public readonly static string insertstatement = "Insert into ";
         #region tables
-        public readonly string gewaesser_table = "g_gewaesser";
-        public readonly string fishart_table = "fa_fischart";
-        public readonly string fish_table = "f_fisch";
-        public readonly string bezrik_table = "b_bezirk";
-        public readonly string ausuebungsberechtigte_table = "ab_ausuebungsberechtigte";
-        public readonly string aufsichtsorgane_table = "ao_aufsichtsorgane";
-        public readonly string revier_table = "r_revier";
-        public readonly string users_table = "u_users";
-        public readonly string bewertung_table = "b_bewertung";
-        public readonly string rating_table = "r_rating";
-        public readonly string revier_values_table = "rv_revier_values";
-        public readonly string revier_attributes_table = "ra_revier_attributes";
-        public readonly string verkauf_table = "v_verkauf";
-        public readonly string karte_table = "k_karte";
+        public readonly string gewaesser_table = "test.g_gewaesser";
+        public readonly string fishart_table = "test.fa_fischart";
+        public readonly string fish_table = "test.f_fisch";
+        public readonly string bezrik_table = "test.b_bezirk";
+        public readonly string ausuebungsberechtigte_table = "test.ab_ausuebungsberechtigte";
+        public readonly string aufsichtsorgane_table = "test.ao_aufsichtsorgane";
+        public readonly string revier_table = "test.r_revier";
+        public readonly string users_table = "test.u_users";
+        public readonly string bewertung_table = "test.b_bewertung";
+        public readonly string rating_table = "test.r_rating";
+        public readonly string revier_values_table = "test.rv_revier_values";
+        public readonly string revier_attributes_table = "test.ra_revier_attributes";
+        public readonly string verkauf_table = "test.v_verkauf";
+        public readonly string karte_table = "test.k_karte";
         #endregion
 
         #region records
         public record AufsichtsOrganeRecord
         {
             public int ao_u_id { get; set; }
-            public int ao_r_na { get; set; }
+            public int ao_r_id { get; set; }
 
         }
         public string AufsichtsOrganeInsert(AufsichtsOrganeRecord value)
         {
             return insertstatement + aufsichtsorgane_table+
                 $"( {value.GetType().GetProperties()[0].Name}, {value.GetType().GetProperties()[1].Name}) " +
-                $"VALUES ({value.ao_u_id} , {value.ao_r_na}); \n";
+                $"VALUES ({value.ao_u_id} , {value.ao_r_id}); \n";
         }
 
         public record FischRecord
         {
             public int f_id { get; set; }
-            public string? f_na { get; set; }
+            public string? f_name { get; set; }
 
         }
         public string FischInsert(FischRecord value)
         {
             return insertstatement+ fish_table +  
                 $"( {value.GetType().GetProperties()[0].Name}, {value.GetType().GetProperties()[1].Name}) " +
-                $"VALUES ({value.f_id} , '{value.f_na}'); \n";
+                $"VALUES ({value.f_id} , '{value.f_name}'); \n";
         }
         public record GewaesserRecord
         {
@@ -104,7 +104,7 @@ namespace MockData.Model
             public int r_ersteller { get; set; }
             public int r_g_id { get; set; }
             public string? r_name { get; set; }
-            public string? r_adresse { get; set; }
+            public string? r_addresse { get; set; }
         }
         public string RevierInsert(RevierRecord value)
         {
@@ -112,7 +112,7 @@ namespace MockData.Model
                 $"( {value.GetType().GetProperties()[0].Name}, {value.GetType().GetProperties()[1].Name}, " +
                 $"{value.GetType().GetProperties()[2].Name}, {value.GetType().GetProperties()[3].Name}, " +
                 $"{value.GetType().GetProperties()[4].Name}, {value.GetType().GetProperties()[5].Name}) "+
-                 $"VALUES ({value.r_id} , {value.r_ab_id}, {value.r_ersteller},{value.r_g_id}, '{value.r_name}', '{value.r_adresse}'); \n";
+                 $"VALUES ({value.r_id} , {value.r_ab_id}, {value.r_ersteller},{value.r_g_id}, '{value.r_name}', '{value.r_addresse}'); \n";
         }
         public record RevierValuesRecord
         {
@@ -165,7 +165,7 @@ namespace MockData.Model
             public int b_r_id { get; set; }
             public int b_rating_id { get; set; }
             public string? b_kommentar { get; set; }
-            public bool b_aktiv{ get; set; }
+            public int b_aktiv{ get; set; }
             public DateTime? b_datum{ get; set; }
         }
         public string BewertungInsert(BewertungRecord value)
@@ -267,63 +267,63 @@ namespace MockData.Model
             var a = FischInsert(new FischRecord
             {
                 f_id = fishid,
-                f_na = "Regenbogenforelle"
+                f_name = "Regenbogenforelle"
             });
             fishid++;
             Script += a;
              a = FischInsert(new FischRecord
             {
                 f_id = fishid,
-                f_na = "Bachsaibling"
+                f_name = "Bachsaibling"
             });
             fishid++;
             Script += a;
              a = FischInsert(new FischRecord
             {
                 f_id = fishid,
-                f_na = "Karpfen"
+                f_name = "Karpfen"
             });
             fishid++;
             Script += a;
             a = FischInsert(new FischRecord
             {
                 f_id = fishid,
-                f_na = "Europäischer Aal"
+                f_name = "Europäischer Aal"
             });
             fishid++;
             Script += a;
             a = FischInsert(new FischRecord
             {
                 f_id = fishid,
-                f_na = "Atlantischer Lachs"
+                f_name = "Atlantischer Lachs"
             });
             fishid++;
             Script += a;
             a = FischInsert(new FischRecord
             {
                 f_id = fishid,
-                f_na = "Thunfisch"
+                f_name = "Thunfisch"
             });
             fishid++;
             Script += a;
             a = FischInsert(new FischRecord
             {
                 f_id = fishid,
-                f_na = "Atlantischer Hering"
+                f_name = "Atlantischer Hering"
             });
             fishid++;
             Script += a;
             a = FischInsert(new FischRecord
             {
                 f_id = fishid,
-                f_na = "Dorsch"
+                f_name = "Dorsch"
             });
             fishid++;
             Script += a;
             a = FischInsert(new FischRecord
             {
                 f_id = fishid,
-                f_na = "Sardine"
+                f_name = "Sardine"
             });
             fishid++;
             Script += a + "\n\n";
@@ -466,7 +466,7 @@ namespace MockData.Model
                     {
                         r_id = reviersid,
                         r_ab_id = 2,
-                        r_adresse = x.AUFSICHTSORGANE,
+                        r_addresse = x.AUFSICHTSORGANE,
                         r_ersteller = 0,
                         r_name = x.REVIER_NAME,
                         r_g_id = 0
@@ -482,7 +482,7 @@ namespace MockData.Model
             var a = AufsichtsOrganeInsert(
                 new AufsichtsOrganeRecord
                 {
-                    ao_r_na = 1,
+                    ao_r_id = 1,
                     ao_u_id = 1
                 }
                 );
@@ -497,7 +497,7 @@ namespace MockData.Model
                     b_u_id = 1,
                     b_r_id = 1,
                     b_rating_id = 5,
-                    b_aktiv = true,
+                    b_aktiv = 1,
                     b_datum = DateTime.Now,
                     b_kommentar = "super fische da"
                 }
