@@ -236,22 +236,23 @@ namespace MockData.Model
             //independent tables
             reader = new Reader.Reader();
             arrayList = (List<Reader.Reader.CSVRecord2>?)reader.OliRead();
-           
-            
-            //GenerateFish();
-           // GenerateBezirk();
-           // GenerateAusuebungsberechtigte();
-           // GenerateRevierAttributes();
-            //GenerateRating();
+
+
+            GenerateFish();
+            GenerateBezirk();
+            GenerateGewaesser();
+            GenerateAusuebungsberechtigte();
+            GenerateRevierAttributes();
+            GenerateRating();
             //GenerateUsers();
             GenerateReviers(arrayList);
-          //  GenerateAufsichtsorgane();
-           // GenerateBewertung();
-           // GenerateKarten();
-           // GenerateRevierValues();
-            
+            GenerateAufsichtsorgane();
+            GenerateBewertung();
+            GenerateKarten();
+            GenerateRevierValues();
+
             //arraylist with real revier name and id
-           
+
         }
         //independent
         // Fisch
@@ -334,81 +335,10 @@ namespace MockData.Model
             var a = BezirkInsert(
                 new BezirkRecord { 
                     b_id = bezirkid,
-                    b_name="Voralberg"
+                    b_name= "Spittal an der Drau"
                 }
                 ) ;
-            bezirkid++;
-            Script += a;
-            a = BezirkInsert(
-                new BezirkRecord
-                {
-                    b_id = bezirkid,
-                    b_name = "Tirol"
-                }
-                );
-            bezirkid++;
-            Script += a;
-            a = BezirkInsert(
-                new BezirkRecord
-                {
-                    b_id = bezirkid,
-                    b_name = "Kaernten"
-                }
-                );
-            bezirkid++;
-            Script += a;
-            a = BezirkInsert(
-                new BezirkRecord
-                {
-                    b_id = bezirkid,
-                    b_name = "Salzburg"
-                }
-                );
-            bezirkid++;
-            Script += a;
-            a = BezirkInsert(
-                new BezirkRecord
-                {
-                    b_id = bezirkid,
-                    b_name = "Niederoesterreich"
-                }
-                );
-            bezirkid++;
-            Script += a;
-            a = BezirkInsert(
-                new BezirkRecord
-                {
-                    b_id = bezirkid,
-                    b_name = "Oberoesterreich"
-                }
-                );
-            bezirkid++;
-            Script += a;
-            a = BezirkInsert(
-                new BezirkRecord
-                {
-                    b_id = bezirkid,
-                    b_name = "Wien"
-                }
-                );
-            bezirkid++;
-            Script += a;
-            a = BezirkInsert(
-                new BezirkRecord
-                {
-                    b_id = bezirkid,
-                    b_name = "Steiermark"
-                }
-                );
-            bezirkid++;
-            Script += a;
-            a = BezirkInsert(
-                new BezirkRecord
-                {
-                    b_id = bezirkid,
-                    b_name = "Burgenland"
-                }
-                );
+     
             bezirkid++;
             Script += a+"\n\n";
         }
@@ -491,6 +421,26 @@ namespace MockData.Model
                 ); ;
             Script += a;
         }
+        public void GenerateGewaesser()
+        {
+           var a = GewaesserInsert(new GewaesserRecord
+           {
+               g_id = 1,
+               g_b_id = bezirkid,
+               g_name = "Egelsee",
+               g_typ = "stehendes wasser"
+           });
+            Script += a;
+             a = GewaesserInsert(new GewaesserRecord
+            {
+                g_id = 1,
+                g_b_id = bezirkid,
+                g_name = "Drau",
+                g_typ = "fliessendes wasser"
+            });
+            Script += a;
+        }
+
 
 
         //less independent
@@ -500,66 +450,30 @@ namespace MockData.Model
         //karte
         //verkauf
         //revierAttributes
-        public List<BezirkRecord> IdBezirkList = new List<BezirkRecord>();
-        public List<UsersRecord> IdUserList = new List<UsersRecord>();
-        private int ReviersID = 0;
-        private int UsersID = 0;
+        public int reviersid = 0;
         public void GenerateReviers(List<Reader.Reader.CSVRecord2> csvrecords)
         {
             csvrecords.RemoveAt(0);
-            csvrecords.RemoveRange(0, 120);
+            csvrecords.RemoveRange(0, 220);
             foreach(var x in csvrecords)
             {
                 
-               Script += UsersInsert(new UsersRecord
-                {
-                    u_id = UsersID,
-                    u_name = x.AUSUEBUNGSBERECHTIGTE,
-                    u_email = "random@mail.com",
-                    u_telnr = "+43111111"
-                });
+             
                 
-                if(!IdBezirkList.Any(c=> c.b_name.Equals(x.BEZIRK_NAME)))
-                {
-                    var bezirk = new BezirkRecord
-                    {
-                        b_id = bezirkid,
-                        b_name = x.BEZIRK_NAME
-                    };
-                    Script += BezirkInsert(bezirk );
-                    IdBezirkList.Add(bezirk);
 
                     Script += RevierInsert(
                     new RevierRecord
                     {
-                        r_id = ReviersID,
+                        r_id = reviersid,
                         r_ab_id = 2,
-                        r_adresse = "",
-                        r_ersteller = UsersID,
-                        r_name = "",
-                        r_g_id = bezirkid
+                        r_adresse = x.AUFSICHTSORGANE,
+                        r_ersteller = 0,
+                        r_name = x.REVIER_NAME,
+                        r_g_id = 0
                     }
                     );
-                    bezirkid++;
-                }
-                else
-                {
-
-                    Script += RevierInsert(
-                   new RevierRecord
-                   {
-                       r_id = ReviersID,
-                       r_ab_id = 2,
-                       r_adresse = "",
-                       r_ersteller = UsersID,
-                       r_name = "",
-                       r_g_id = IdBezirkList.First(c=> c.b_name.Equals(x.BEZIRK_NAME)).b_id
-                   }
-                   );
-                    
-                }
-                UsersID++;
-                ReviersID++;
+                     reviersid++;
+                
             }
                      
         }
