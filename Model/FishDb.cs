@@ -1,17 +1,17 @@
 ﻿using MockData.Helpers;
 using System.Collections;
 using System.Reflection;
-
+using System.Linq;
 namespace MockData.Model
 {
     public class FishDb
     {
         public readonly static string insertstatement = "Insert into ";
         #region tables
-        public readonly string see_table = "s_see";
+        public readonly string gewaesser_table = "g_gewaesser";
         public readonly string fishart_table = "fa_fischart";
         public readonly string fish_table = "f_fisch";
-        public readonly string bundesland_table = "bl_bundesland";
+        public readonly string bezrik_table = "b_bezirk";
         public readonly string ausuebungsberechtigte_table = "ab_ausuebungsberechtigte";
         public readonly string aufsichtsorgane_table = "ao_aufsichtsorgane";
         public readonly string revier_table = "r_revier";
@@ -50,18 +50,19 @@ namespace MockData.Model
                 $"( {value.GetType().GetProperties()[0].Name}, {value.GetType().GetProperties()[1].Name}) " +
                 $"VALUES ({value.f_id} , '{value.f_na}'); \n";
         }
-        public record SeeRecord
+        public record GewaesserRecord
         {
-            public int s_id { get; set; }
-            public int s_bl_id { get; set; }
-            public string? s_name { get; set; }
+            public int g_id { get; set; }
+            public int g_b_id { get; set; }
+            public string? g_name { get; set; }
+            public string? g_typ { get; set; }
         }
-        public string SeeInsert(SeeRecord value)
+        public string GewaesserInsert(GewaesserRecord value)
         {
-            return insertstatement + see_table +
+            return insertstatement + gewaesser_table +
                 $"( {value.GetType().GetProperties()[0].Name}, {value.GetType().GetProperties()[1].Name}," +
-                $"{value.GetType().GetProperties()[2].Name}) " +
-                $"VALUES ({value.s_id} , {value.s_bl_id}, '{value.s_name}'); \n";
+                $"{value.GetType().GetProperties()[2].Name},{value.GetType().GetProperties()[3].Name} ) " +
+                $"VALUES ({value.g_id} , {value.g_b_id}, '{value.g_name}','{value.g_typ}'); \n";
         }
         public record FishArtRecord
         {
@@ -74,15 +75,16 @@ namespace MockData.Model
             return insertstatement + fishart_table +
                 $"( {value.GetType().GetProperties()[0].Name}, {value.GetType().GetProperties()[1].Name}) VALUES ({value.fa_s_id} , {value.fa_f_id}); \n";
         }
-        public record BundeslandRecord
+        public record BezirkRecord
         {
-            public int bl_id { get; set; }
-            public string? bl_name { get; set; }
+            public int b_id { get; set; }
+            public string? b_name { get; set; }
         }
-        public string BundeslandInsert(BundeslandRecord value)
+        public string BezirkInsert(BezirkRecord value)
         {
-            return insertstatement + bundesland_table+
-                $"( {value.GetType().GetProperties()[0].Name},{value.GetType().GetProperties()[1].Name}) VALUES ({value.bl_id} , '{value.bl_name}'); \n";
+            return insertstatement + bezrik_table+
+                $"( {value.GetType().GetProperties()[0].Name},{value.GetType().GetProperties()[1].Name}) " +
+                $"VALUES ({value.b_id} , '{value.b_name}'); \n";
         }
         public record AusuebungsberechtigteRecord
         {
@@ -100,7 +102,7 @@ namespace MockData.Model
             public int r_id { get; set; }
             public int r_ab_id { get; set; }
             public int r_ersteller { get; set; }
-            public int r_s_id { get; set; }
+            public int r_g_id { get; set; }
             public string? r_name { get; set; }
             public string? r_adresse { get; set; }
         }
@@ -110,7 +112,7 @@ namespace MockData.Model
                 $"( {value.GetType().GetProperties()[0].Name}, {value.GetType().GetProperties()[1].Name}, " +
                 $"{value.GetType().GetProperties()[2].Name}, {value.GetType().GetProperties()[3].Name}, " +
                 $"{value.GetType().GetProperties()[4].Name}, {value.GetType().GetProperties()[5].Name}) "+
-                 $"VALUES ({value.r_id} , {value.r_ab_id}, {value.r_ersteller},{value.r_s_id}, '{value.r_name}', '{value.r_adresse}'); \n";
+                 $"VALUES ({value.r_id} , {value.r_ab_id}, {value.r_ersteller},{value.r_g_id}, '{value.r_name}', '{value.r_adresse}'); \n";
         }
         public record RevierValuesRecord
         {
@@ -223,29 +225,30 @@ namespace MockData.Model
         #endregion
 
         public Reader.Reader reader;
-        ArrayList arrayList; 
+        List<Reader.Reader.CSVRecord2> arrayList; 
 
         public string Script { get; set; }
-
+        GeneralHelpers ghelper; 
         public FishDb()
         {
+            ghelper = new GeneralHelpers();
             Script = "";
             //independent tables
             reader = new Reader.Reader();
-            arrayList = reader.readRevier();
+            arrayList = (List<Reader.Reader.CSVRecord2>?)reader.OliRead();
            
             
-            GenerateFish();
-            GenerateBundesland();
-            GenerateAusuebungsberechtigte();
-            GenerateRevierAttributes();
-            GenerateRating();
-            GenerateUsers();
-            GenerateReviers();
-            GenerateAufsichtsorgane();
-            GenerateBewertung();
-            GenerateKarten();
-            GenerateRevierValues();
+            //GenerateFish();
+           // GenerateBezirk();
+           // GenerateAusuebungsberechtigte();
+           // GenerateRevierAttributes();
+            //GenerateRating();
+            //GenerateUsers();
+            GenerateReviers(arrayList);
+          //  GenerateAufsichtsorgane();
+           // GenerateBewertung();
+           // GenerateKarten();
+           // GenerateRevierValues();
             
             //arraylist with real revier name and id
            
@@ -325,88 +328,88 @@ namespace MockData.Model
             Script += a + "\n\n";
         }
 
-        private int bundeslandid = 0;
-        public void GenerateBundesland()
+        private int bezirkid = 0;
+        public void GenerateBezirk()
         {
-            var a = BundeslandInsert(
-                new BundeslandRecord { 
-                    bl_id = bundeslandid,
-                    bl_name="Voralberg"
+            var a = BezirkInsert(
+                new BezirkRecord { 
+                    b_id = bezirkid,
+                    b_name="Voralberg"
                 }
                 ) ;
-            bundeslandid++;
+            bezirkid++;
             Script += a;
-            a = BundeslandInsert(
-                new BundeslandRecord
+            a = BezirkInsert(
+                new BezirkRecord
                 {
-                    bl_id = bundeslandid,
-                    bl_name = "Tirol"
+                    b_id = bezirkid,
+                    b_name = "Tirol"
                 }
                 );
-            bundeslandid++;
+            bezirkid++;
             Script += a;
-            a = BundeslandInsert(
-                new BundeslandRecord
+            a = BezirkInsert(
+                new BezirkRecord
                 {
-                    bl_id = bundeslandid,
-                    bl_name = "Kaernten"
+                    b_id = bezirkid,
+                    b_name = "Kaernten"
                 }
                 );
-            bundeslandid++;
+            bezirkid++;
             Script += a;
-            a = BundeslandInsert(
-                new BundeslandRecord
+            a = BezirkInsert(
+                new BezirkRecord
                 {
-                    bl_id = bundeslandid,
-                    bl_name = "Salzburg"
+                    b_id = bezirkid,
+                    b_name = "Salzburg"
                 }
                 );
-            bundeslandid++;
+            bezirkid++;
             Script += a;
-            a = BundeslandInsert(
-                new BundeslandRecord
+            a = BezirkInsert(
+                new BezirkRecord
                 {
-                    bl_id = bundeslandid,
-                    bl_name = "Niederoesterreich"
+                    b_id = bezirkid,
+                    b_name = "Niederoesterreich"
                 }
                 );
-            bundeslandid++;
+            bezirkid++;
             Script += a;
-            a = BundeslandInsert(
-                new BundeslandRecord
+            a = BezirkInsert(
+                new BezirkRecord
                 {
-                    bl_id = bundeslandid,
-                    bl_name = "Oberoesterreich"
+                    b_id = bezirkid,
+                    b_name = "Oberoesterreich"
                 }
                 );
-            bundeslandid++;
+            bezirkid++;
             Script += a;
-            a = BundeslandInsert(
-                new BundeslandRecord
+            a = BezirkInsert(
+                new BezirkRecord
                 {
-                    bl_id = bundeslandid,
-                    bl_name = "Wien"
+                    b_id = bezirkid,
+                    b_name = "Wien"
                 }
                 );
-            bundeslandid++;
+            bezirkid++;
             Script += a;
-            a = BundeslandInsert(
-                new BundeslandRecord
+            a = BezirkInsert(
+                new BezirkRecord
                 {
-                    bl_id = bundeslandid,
-                    bl_name = "Steiermark"
+                    b_id = bezirkid,
+                    b_name = "Steiermark"
                 }
                 );
-            bundeslandid++;
+            bezirkid++;
             Script += a;
-            a = BundeslandInsert(
-                new BundeslandRecord
+            a = BezirkInsert(
+                new BezirkRecord
                 {
-                    bl_id = bundeslandid,
-                    bl_name = "Burgenland"
+                    b_id = bezirkid,
+                    b_name = "Burgenland"
                 }
                 );
-            bundeslandid++;
+            bezirkid++;
             Script += a+"\n\n";
         }
 
@@ -476,14 +479,14 @@ namespace MockData.Model
         }
         public void GenerateUsers()
         {
-            GeneralHelpers b = new GeneralHelpers();
+            GeneralHelpers ghelper = new GeneralHelpers();
             var a = UsersInsert(
                 new UsersRecord
                 {
                     u_id = 1,
                     u_name = "Oliwier Nowak",
                     u_telnr = "+43 999999999",
-                    u_email = b.GenerateEmail("Oliwier Nowak")
+                    u_email = ghelper.GenerateEmail("Oliwier Nowak")
                 }
                 ); ;
             Script += a;
@@ -497,19 +500,68 @@ namespace MockData.Model
         //karte
         //verkauf
         //revierAttributes
-        public void GenerateReviers()
+        public List<BezirkRecord> IdBezirkList = new List<BezirkRecord>();
+        public List<UsersRecord> IdUserList = new List<UsersRecord>();
+        private int ReviersID = 0;
+        private int UsersID = 0;
+        public void GenerateReviers(List<Reader.Reader.CSVRecord2> csvrecords)
         {
-            var a = RevierInsert(
-                new RevierRecord {
-                    r_id = 1,
-                    r_ab_id = 1,
-                    r_s_id = 1,
-                    r_ersteller = 1,
-                    r_adresse = "1010 Wienn, spengergasse",
-                    r_name = "Fish and go"
+            csvrecords.RemoveAt(0);
+            csvrecords.RemoveRange(0, 120);
+            foreach(var x in csvrecords)
+            {
+                
+               Script += UsersInsert(new UsersRecord
+                {
+                    u_id = UsersID,
+                    u_name = x.AUSUEBUNGSBERECHTIGTE,
+                    u_email = "random@mail.com",
+                    u_telnr = "+43111111"
+                });
+                
+                if(!IdBezirkList.Any(c=> c.b_name.Equals(x.BEZIRK_NAME)))
+                {
+                    var bezirk = new BezirkRecord
+                    {
+                        b_id = bezirkid,
+                        b_name = x.BEZIRK_NAME
+                    };
+                    Script += BezirkInsert(bezirk );
+                    IdBezirkList.Add(bezirk);
+
+                    Script += RevierInsert(
+                    new RevierRecord
+                    {
+                        r_id = ReviersID,
+                        r_ab_id = 2,
+                        r_adresse = "",
+                        r_ersteller = UsersID,
+                        r_name = "",
+                        r_g_id = bezirkid
+                    }
+                    );
+                    bezirkid++;
                 }
-                );
-                     Script += a;
+                else
+                {
+
+                    Script += RevierInsert(
+                   new RevierRecord
+                   {
+                       r_id = ReviersID,
+                       r_ab_id = 2,
+                       r_adresse = "",
+                       r_ersteller = UsersID,
+                       r_name = "",
+                       r_g_id = IdBezirkList.First(c=> c.b_name.Equals(x.BEZIRK_NAME)).b_id
+                   }
+                   );
+                    
+                }
+                UsersID++;
+                ReviersID++;
+            }
+                     
         }
         public void GenerateAufsichtsorgane()
         {
