@@ -2,6 +2,9 @@
 using System.Collections;
 using System.Reflection;
 using System.Linq;
+using Newtonsoft.Json;
+using RestSharp;
+
 namespace MockData.Model
 {
     public class FishDb
@@ -370,15 +373,22 @@ namespace MockData.Model
 
         public void GenerateAusuebungsberechtigte()
         {
+
+            Script += "\n\n\n\n\n";
             var a = AusuebungsberechtigteInsert(
                 new AusuebungsberechtigteRecord
                 {
-                    ab_id = 1,
+                    ab_id = 0,
                     ab_datum = DateOnly.Parse("2022-01-14"),
                     ab_name = "VIP Fishing"
                 }
                 ) ;
             Script += a;
+            string path = Path.Combine(Environment.CurrentDirectory, @"scripts/test.ab_ausuebungsberechtigte.sql");
+            string text = File.ReadAllText(path);
+            Script += text;
+            Script += "\n\n\n\n\n";
+
         }
         public int RevierAttributesID =1;
         public void GenerateRevierAttributes()
@@ -467,17 +477,24 @@ namespace MockData.Model
         }
         public void GenerateUsers()
         {
+            Script += "\n\n\n\n\n";
+
             GeneralHelpers ghelper = new GeneralHelpers();
             var a = UsersInsert(
                 new UsersRecord
                 {
-                    u_id = 1,
+                    u_id = 0,
                     u_name = "Oliwier Nowak",
                     u_telnr = "+43 999999999",
                     u_email = ghelper.GenerateEmail("Oliwier Nowak")
                 }
                 ); ;
             Script += a;
+            string path = Path.Combine(Environment.CurrentDirectory, @"scripts/test.u_users.sql");
+            string text = File.ReadAllText(path);
+            Script += text;
+            Script += "\n\n\n\n\n";
+
         }
         public void GenerateGewaesser()
         {
@@ -511,19 +528,26 @@ namespace MockData.Model
         public int reviersid = 0;
         public void GenerateReviers(List<Reader.Reader.CSVRecord2> csvrecords)
         {
+
+            //r_ab reandom zahl between 1 30
+
+            Random rd = new Random();
+
+            
             csvrecords.RemoveAt(0);
             csvrecords.RemoveRange(0, 220);
             foreach(var x in csvrecords)
             {
+                var rand = rd.Next(1, 80);
                     Script += RevierInsert(
                     new RevierRecord
                     {
                         r_id = reviersid,
-                        r_ab_id = 1,
+                        r_ab_id = rand%28+1,
                         r_addresse = x.AUFSICHTSORGANE,
-                        r_ersteller = 1,
+                        r_ersteller = rand,
                         r_name = x.REVIER_NAME,
-                        r_g_id = 1
+                        r_g_id = rand%2+1
                     }
                     );
                      reviersid++;         
@@ -539,37 +563,74 @@ namespace MockData.Model
                     ao_u_id = 1
                 }
                 );
-            Script += a;
+            Script += $"insert into test.ao_aufsichtsorgane " +
+                $"select top 20 u_id,r_id from test.u_users,test.r_revier order by newID(); ";
+            Script += "\n\n\n\n\n";
         }
+        public record FetchBody
+        {
+            public string Body { get; set; }
+        };
         public void GenerateBewertung()
         {
-            var a = BewertungInsert(
+
+
+            var client = new RestClient("https://dummyjson.com/comments?limit=20");
+            var request = new RestRequest();
+
+            var aqq = client.Execute(request).Content;
+            dynamic json = JsonConvert.DeserializeObject(aqq);
+
+           // FetchBody users = new();
+            var comments = new List<string>();
+
+            foreach (var user in json["comments"])
+            {
+                comments.Add( Convert.ToString(user["body"]));
+            }
+            Random rand = new Random();
+
+            int id = 1;
+            Script += "\n\n\n\n\n";
+            foreach (var comment in comments)
+            {
+                var ran = rand.Next(1, 100);
+                Script += BewertungInsert(
                 new BewertungRecord
                 {
-                    b_id = 1,
-                    b_u_id = 1,
-                    b_r_id = 1,
-                    b_rating_id = 5,
-                    b_aktiv = 1,
+                    b_id = id,
+                    b_u_id = ran % 78 + 1,
+                    b_r_id = ran % 29 + 1,
+                    b_rating_id = ran%4+1,
+                    b_aktiv = ran % 2 +1,
                     b_datum = DateTime.Now,
-                    b_kommentar = "super fische da"
+                    b_kommentar = comment
                 }
                 );
-            Script += a;
+                id++;
+            }
+            Script += "\n\n\n\n\n";
+
         }
         public void GenerateKarten()
         {
-            var a = KarteInsert(
+            Random rand = new Random();
+
+            for(int i = 1; i < 15; i++)
+            {
+                var x = rand.Next(1,20);
+                Script += KarteInsert(
                 new KarteRecord
                 {
-                    k_id = 1,
-                    k_r_id = 1,
-                    k_bis = DateTime.Now.AddDays(10),
+                    k_id = i,
+                    k_r_id = x,
+                    k_bis = DateTime.Now.AddDays(x),
                     k_von = DateTime.Now,
-                    k_preis = 10
+                    k_preis = x * 2
                 }
-                ) ;
-            Script += a;
+                );
+            }
+            Script += "\n\n\n\n\n";
         }
 
         public void GenerateVerkauf()
