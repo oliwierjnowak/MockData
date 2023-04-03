@@ -95,7 +95,7 @@ namespace MockData.Model
         public string AusuebungsberechtigteInsert(AusuebungsberechtigteRecord value)
         {
             return insertstatement + ausuebungsberechtigte_table +
-                $"( {value.GetType().GetProperties()[0].Name}, {value.GetType().GetProperties()[1].Name},{value.GetType().GetProperties()[2].Name}) VALUES ({value.ab_id} , '{value.ab_name}', '{value.ab_datum}'); \n";
+                $"( {value.GetType().GetProperties()[0].Name}, {value.GetType().GetProperties()[1].Name},{value.GetType().GetProperties()[2].Name}) VALUES ({value.ab_id} , '{value.ab_name}', '{value.ab_datum.ToString("yyyy-MM-dd")}'); \n";
         }
         public record RevierRecord
         {
@@ -124,13 +124,36 @@ namespace MockData.Model
         }
         public string RevierValuesInsert(RevierValuesRecord value)
         {
+            var insertval = "";
+            var insertprop = "";
+            if (value.rv_datetime_value != null)
+            {
+                insertprop = $"{value.GetType().GetProperties()[2].Name})";
+                DateTime a = (DateTime)value.rv_datetime_value;
+                insertval = ",'" + a.ToString("yyyy-MM-dd HH:mm:ss.fff") + "')\n";
+
+            }
+            var insertvalString = "";
+            var insertpropString = "";
+            if (value.rv_string_value != null)
+            {
+                insertpropString = $"{value.GetType().GetProperties()[3].Name})";
+                insertvalString = $",'{value.rv_string_value}');\n";
+            }
+            var insertvalInt = "";
+            var insertpropInt = "";
+            if (value.rv_int_value != null)
+            {
+                insertpropString = $"{value.GetType().GetProperties()[4].Name}) ";
+                insertvalString = $", {value.rv_int_value});\n";
+            }
             return insertstatement + revier_values_table +
                 $"( {value.GetType().GetProperties()[0].Name}," +
                 $"{value.GetType().GetProperties()[1].Name}," +
-                $"{value.GetType().GetProperties()[2].Name}," +
-                $"{value.GetType().GetProperties()[3].Name}," +
-                $"{value.GetType().GetProperties()[4].Name}) " +
-                $"VALUES ({value.rv_r_id} , {value.rv_ra_id}, '{value.rv_datetime_value}','{value.rv_string_value}', {value.rv_int_value});\n";
+                insertprop +
+                insertpropString +
+                 insertpropInt +
+                $"VALUES ({value.rv_r_id} , {value.rv_ra_id} {insertval} {insertvalString} {insertvalInt}";
         }
         public record RevierAttributesRecord
         {
@@ -166,7 +189,7 @@ namespace MockData.Model
             public int b_rating_id { get; set; }
             public string? b_kommentar { get; set; }
             public int b_aktiv{ get; set; }
-            public DateTime? b_datum{ get; set; }
+            public DateTime b_datum{ get; set; }
         }
         public string BewertungInsert(BewertungRecord value)
         {
@@ -178,7 +201,7 @@ namespace MockData.Model
                 $"{value.GetType().GetProperties()[4].Name}," +
                 $"{value.GetType().GetProperties()[5].Name}," +
                 $"{value.GetType().GetProperties()[6].Name})" +
-                $" VALUES ({value.b_id}, {value.b_u_id},{value.b_r_id},{value.b_rating_id}, '{value.b_kommentar}',{value.b_aktiv}, '{value.b_datum}');\n";
+                $" VALUES ({value.b_id}, {value.b_u_id},{value.b_r_id},{value.b_rating_id}, '{value.b_kommentar}',{value.b_aktiv}, '{value.b_datum.ToString("yyyy-MM-dd HH:mm:ss.fff")}');\n";
         }
 
         public record RatingRecord
@@ -198,6 +221,7 @@ namespace MockData.Model
             public int k_r_id { get; set; }
             public DateTime k_von { get; set; }
             public DateTime k_bis { get; set; }
+            public int k_preis { get; set; }
         }
         public string KarteInsert(KarteRecord value)
         {
@@ -205,8 +229,9 @@ namespace MockData.Model
                 $"( {value.GetType().GetProperties()[0].Name}," +
                 $"{value.GetType().GetProperties()[1].Name}," +
                 $"{value.GetType().GetProperties()[2].Name}," +
-                $"{value.GetType().GetProperties()[3].Name}) " +
-                $"VALUES ({value.k_id} , {value.k_r_id},'{value.k_von}', '{value.k_bis}');\n";
+                $"{value.GetType().GetProperties()[3].Name},  " +
+                 $"{value.GetType().GetProperties()[4].Name}) " +
+                $"VALUES ({value.k_id} , {value.k_r_id},'{value.k_von.ToString("yyyy-MM-dd HH:mm:ss.fff")}', '{value.k_bis.ToString("yyyy-MM-dd HH:mm:ss.fff")}',{value.k_preis});\n";
         }
         public record VerkaufRecord
         {
@@ -220,7 +245,7 @@ namespace MockData.Model
             return insertstatement + verkauf_table+
                 $"( {value.GetType().GetProperties()[0].Name},{value.GetType().GetProperties()[1].Name}," +
                 $"{value.GetType().GetProperties()[2].Name},{value.GetType().GetProperties()[3].Name}) " +
-                $"VALUES ({value.v_id} , {value.v_k_id},{value.v_u_id}, '{value.v_datum}');\n";
+                $"VALUES ({value.v_id} , {value.v_k_id},{value.v_u_id}, (convert(datetime,'{value.v_datum}',5)));\n";
         }
         #endregion
 
@@ -244,7 +269,7 @@ namespace MockData.Model
             GenerateAusuebungsberechtigte();
             GenerateRevierAttributes();
             GenerateRating();
-            //GenerateUsers();
+            GenerateUsers();
             GenerateReviers(arrayList);
             GenerateAufsichtsorgane();
             GenerateBewertung();
@@ -354,17 +379,50 @@ namespace MockData.Model
                 }
                 ) ;
             Script += a;
-        } 
+        }
+        public int RevierAttributesID =1;
         public void GenerateRevierAttributes()
         {
-            var a = RevierAttributesInsert(
+            Script += RevierAttributesInsert(
                 new RevierAttributesRecord
                 {
-                    ra_id = 1 ,
-                    ra_name = "Tiefe"
+                    ra_id = RevierAttributesID,
+                    ra_name = "Maximale Tiefe"
                 }
                 );
-            Script += a;
+            RevierAttributesID++;
+            Script += RevierAttributesInsert(
+                new RevierAttributesRecord
+                {
+                    ra_id = RevierAttributesID,
+                    ra_name = "Gratis parkplatz"
+                }
+                );
+            RevierAttributesID++;
+            Script += RevierAttributesInsert(
+                new RevierAttributesRecord
+                {
+                    ra_id = RevierAttributesID,
+                    ra_name = "Kann man schwimmen"
+                }
+                );
+            RevierAttributesID++;
+            Script += RevierAttributesInsert(
+                new RevierAttributesRecord
+                {
+                    ra_id = RevierAttributesID,
+                    ra_name = "Wasserreinheit"
+                }
+                );
+            RevierAttributesID++;
+            Script += RevierAttributesInsert(
+                new RevierAttributesRecord
+                {
+                    ra_id = RevierAttributesID,
+                    ra_name = "Bootfahren erlaubt"
+                }
+                );
+
         }
         public void GenerateRating()
         {
@@ -426,15 +484,15 @@ namespace MockData.Model
            var a = GewaesserInsert(new GewaesserRecord
            {
                g_id = 1,
-               g_b_id = bezirkid,
+               g_b_id = bezirkid-1,
                g_name = "Egelsee",
                g_typ = "stehendes wasser"
            });
             Script += a;
              a = GewaesserInsert(new GewaesserRecord
             {
-                g_id = 1,
-                g_b_id = bezirkid,
+                g_id = 2,
+                g_b_id = bezirkid-1,
                 g_name = "Drau",
                 g_typ = "fliessendes wasser"
             });
@@ -457,23 +515,18 @@ namespace MockData.Model
             csvrecords.RemoveRange(0, 220);
             foreach(var x in csvrecords)
             {
-                
-             
-                
-
                     Script += RevierInsert(
                     new RevierRecord
                     {
                         r_id = reviersid,
-                        r_ab_id = 2,
+                        r_ab_id = 1,
                         r_addresse = x.AUFSICHTSORGANE,
-                        r_ersteller = 0,
+                        r_ersteller = 1,
                         r_name = x.REVIER_NAME,
-                        r_g_id = 0
+                        r_g_id = 1
                     }
                     );
-                     reviersid++;
-                
+                     reviersid++;         
             }
                      
         }
@@ -512,9 +565,10 @@ namespace MockData.Model
                     k_id = 1,
                     k_r_id = 1,
                     k_bis = DateTime.Now.AddDays(10),
-                    k_von = DateTime.Now
+                    k_von = DateTime.Now,
+                    k_preis = 10
                 }
-                );
+                ) ;
             Script += a;
         }
 
@@ -532,9 +586,17 @@ namespace MockData.Model
             Script += a;
         }
 
+        public record AttributeRevier
+        {
+            public int RevierID { get; set; }
+            public int AttributeID { get; set; }
+
+        }
+
+
         public void GenerateRevierValues()
         {
-            var a = RevierValuesInsert(
+            Script += RevierValuesInsert(
                 new RevierValuesRecord
                 {
                     rv_r_id=1,
@@ -542,7 +604,119 @@ namespace MockData.Model
                     rv_int_value=100
                 }
                 );
-            Script += a;
+            Script += RevierValuesInsert(
+             new RevierValuesRecord
+             {
+                 rv_r_id = 1,
+                 rv_ra_id = 2,
+                 rv_string_value = "Ja"
+             }
+             );
+            Script += RevierValuesInsert(
+              new RevierValuesRecord
+              {
+                  rv_r_id = 1,
+                  rv_ra_id = 3,
+                  rv_string_value = "Ja"
+              }
+              );
+            Script += RevierValuesInsert(
+              new RevierValuesRecord
+              {
+                  rv_r_id = 1,
+                  rv_ra_id = 4,
+                  rv_int_value = 70
+              }
+              );
+            Script += RevierValuesInsert(
+             new RevierValuesRecord
+             {
+                 rv_r_id = 1,
+                 rv_ra_id = 5,
+                 rv_string_value = "Ja"
+             }
+             );
+
+            Random rd = new Random();
+        
+
+            List<AttributeRevier> vallist = new List<AttributeRevier>();
+            
+            int i = 0;
+            while (i < 20)
+            {
+                
+                int rand_revier_id = rd.Next(2, 20);
+                int rand_attribute_id = rd.Next(1, 5);
+                var j = vallist.Where(x => x.RevierID.Equals(rand_revier_id));
+                if (  j.Count() == 0 || !j.Any(x=> x.AttributeID.Equals(rand_attribute_id))  )
+                {
+                    var valuetoinsert = "";
+                    vallist.Add(new AttributeRevier
+                    {
+                        RevierID = rand_revier_id,
+                        AttributeID = rand_attribute_id
+                    } );
+                    switch (rand_attribute_id)
+                    {
+                        case 1:
+                            Script += RevierValuesInsert(
+                              new RevierValuesRecord
+                              {
+                                rv_r_id = rand_revier_id,
+                                rv_ra_id = rand_attribute_id,
+                                rv_int_value = rd.Next(20, 90)
+                               }
+                            );
+                            break;
+                        case 2:
+                            Script += RevierValuesInsert(
+                              new RevierValuesRecord
+                              {
+                                  rv_r_id = rand_revier_id,
+                                  rv_ra_id = rand_attribute_id,
+                                  rv_string_value = (rand_revier_id + rand_revier_id) % 2 > 0 ? "Ja" : "Nein"
+                              }
+                            );
+                            break;
+                        case 3:
+                            Script += RevierValuesInsert(
+                              new RevierValuesRecord
+                              {
+                                  rv_r_id = rand_revier_id,
+                                  rv_ra_id = rand_attribute_id,
+                                  rv_string_value = (rand_revier_id + rand_revier_id) % 2 > 0 ? "Ja" : "Nein"
+                              }
+                            );
+                            break;
+                        case 4:
+                            Script += RevierValuesInsert(
+                              new RevierValuesRecord
+                              {
+                                  rv_r_id = rand_revier_id,
+                                  rv_ra_id = rand_attribute_id,
+                                  rv_int_value = rand_revier_id / 20 * 100
+                              }
+                            ) ;
+                            break;
+                        case 5:
+                            Script += RevierValuesInsert(
+                              new RevierValuesRecord
+                              {
+                                  rv_r_id = rand_revier_id,
+                                  rv_ra_id = rand_attribute_id,
+                                  rv_string_value = (rand_revier_id + rand_revier_id) % 2 > 0? "Ja" : "Nein"
+                              }
+                            ); ;
+                            break;
+
+                    }
+                    
+                  
+                }
+                
+                i++;
+            };
         }
     }
 }
