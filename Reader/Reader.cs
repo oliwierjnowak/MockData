@@ -9,7 +9,7 @@ namespace MockData.Reader
     {
         public Reader()
         {
-            read();
+            OliRead();
         }
 
         public String read()
@@ -36,6 +36,61 @@ namespace MockData.Reader
 
                 return str;
             }
+        }
+
+        public record CSVRecord
+        {
+            public string? REVIER_ID { get; set; }
+            public string? BKZ { get; set; }
+            public string? BEZIRK_NAME { get; set; }
+            public string? BEZIRK_KFZ { get; set; }
+            public string? REVIER_NR { get; set; }
+            public string? REVIER_NAME { get; set; }
+            public string? TYP { get; set; }
+            public string? BESCHREIBUNG { get; set; }
+            public string? ANMERKUNG { get; set; }
+            public string? BERECHTIGTER { get; set; }
+            public string? AUSUEBUNGSBERECHTIGTE { get; set; }
+            public string? AUFSICHTSORGANE { get; set; }
+            public string? DATUM { get; set; }
+
+
+        }
+        public record CSVRecord2
+        {
+            public string? BEZIRK_NAME { get; set; }
+            public string? REVIER_NAME { get; set; }
+            public string? TYP { get; set; }
+            public string? AUSUEBUNGSBERECHTIGTE { get; set; }
+            public string? AUFSICHTSORGANE { get; set; }
+
+
+
+        }
+        public IEnumerable<CSVRecord2> OliRead()
+        {
+            string path = Path.Combine(Environment.CurrentDirectory, @"CSV/test.csv");
+
+           var x1 =  System.IO.File.ReadAllText(path);
+            var objects = x1.Split("206 ");
+            var x = new List<CSVRecord2>();
+            foreach (string line in objects)
+            {
+                string[] columns = line.Split(';');
+
+                x.Add(new CSVRecord2
+                {
+                    BEZIRK_NAME = columns[2],
+                    REVIER_NAME = columns[5],
+                    TYP = columns[6],
+                    AUSUEBUNGSBERECHTIGTE = columns[columns.Length - 2],
+                    AUFSICHTSORGANE = columns[columns.Length -3]
+                });
+                
+
+
+            }
+            return x;
         }
 
         public ArrayList readRevier()
